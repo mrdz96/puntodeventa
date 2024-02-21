@@ -1,0 +1,129 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Agregar Producto
+{% endblock %}
+
+
+
+
+{% block contenido %}
+
+{% if messages %}
+    <div class="col-lg-12">
+        {% for message in messages %}
+            {% if message.two%}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message.message }}
+                </p>
+            {% else %}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                </p>
+            {%endif%}
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form name="form_insertar" id="form_insertar"method="post" action="{% url 'productos_insertar_save' %}">{% csrf_token %}
+                        <input type="hidden" name="id" value="">
+                        <input type="hidden" name="firma_1_str" id="firma_1_str" value="">
+                        
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Nombre:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info"><i class="fa fa-user"></i></span>
+                                        <input class="form-control" id="nombre" name="nombre" value="" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Descripción:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info"><i class="fa fa-user"></i></span>
+                                        <input class="form-control" id="descripcion" name="descripcion" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Categoria:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info" ><i class="fa fa-user"></i></span>
+                                        <select name="categoria" id="categoria" class="form-control">
+                                            {% for categoria in categorias %}
+                                                <option value="{{categoria.id}}">{{categoria.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Precio:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info" >$</i></span>
+                                        <input type="number" class="form-control" id="precio" name="precio" value="" >
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <br>
+                            
+                        </div>
+                        <button type="submit" class="btn btn-success ok float-right">Guardar</button>
+                        <a href="" class="btn btn-danger">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script>
+    var canvas1 = ""
+    var signaturePad1 = ""
+    
+    $(function () {
+        canvas1 = document.getElementById("firma_1");
+        signaturePad1 = new SignaturePad(canvas1);
+
+    });
+
+    
+
+    $("#form_insertar").on("submit", function(){
+        //Code: Action (like ajax...)
+        firma_1_string = signaturePad1.toDataURL()
+
+        base64data_nueva1 = firma_1_string.replace("data:image/png;base64,", "")
+        base64data_nueva1 = base64data_nueva1.replace("data:image/jpeg;base64,", "")
+        document.getElementById('firma_1_str').value = base64data_nueva1
+        console.log(base64data_nueva1)
+
+    });
+
+    $('#customSwitch2').on('click',function(){
+        $('#hidden2').slideUp("slow");
+        if(this.checked){
+            $('#hidden2').slideDown("slow");
+        }
+    });
+</script>
+{% endblock %}

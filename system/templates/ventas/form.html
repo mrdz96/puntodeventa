@@ -1,0 +1,342 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Ventas
+{% endblock %}
+
+
+{% block extracss %}
+<!-- Start datatable css -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.jqueryui.min.css">
+{% endblock %}
+
+
+{% block contenido %}
+
+{% if messages %}
+    <div class="col-lg-12">
+        {% for message in messages %}
+            {% if message.two%}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message.message }}
+                </p>
+            {% else %}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                </p>
+            {%endif%}
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Dark table start -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header" style="background-color: darkcyan;">
+                <br>
+                <div class="col-md-12 info" >
+                    <div class="col-md-12">
+                        <p style="color: white;"><strong>Detalles de la Venta</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" style="background-color: #d3d3d3;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="alertaprods">
+
+                            </div>
+                            <label>Cliente: </label>
+                            <input type="text" class="form-control" placeholder="Escriba el Nombre del Cliente" id="cliente_nombre"/>
+                            <label>Buscar Producto:</label>
+                            <select class="form-control" id="producto">
+                                <option></option>
+                                {% for producto in productos %}
+                                    <option value="{{producto.id}}">{{producto.id}} - {{producto.categoria.nombre}} {{producto.nombre}} - ${{producto.precio}}</option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                            <hr>
+                            <h4>Orden del Cliente</h4>
+                            <table id="tabla_ventas_producto2" class="table-responsive border cell-border" style="width:100%">
+                                <thead class="text-capitalize">
+                                    <tr style="background-color: skyblue;">
+                                        <th>Codigo de Producto</th>
+                                        <th>Producto</th>
+                                        <th>Descripcion</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Subtotal</th>
+                                        <th>Quitar Producto de Venta</th>
+                                        <!--<th>Eliminar Producto</th>-->
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla_ventas_producto2_body">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header" style="background-color: darkcyan;">
+                <br>
+                <div class="col-md-12">
+                    <div class="col-md-12">
+                        <p style="color: white;"><strong>Detalles Finales</strong></p>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="card-body">
+                <div class="col-md-12">
+                    <h3>Total de la Venta: $<label id="total">0.00</label></h3>
+                    <!--<input type="text" class="form-control" name="total" id="total" value="0.00" disabled style="direction: rtl; color: black;"/>-->
+                </div>
+                <br>
+            </div>
+            <div class="card-footer">
+                <div class="col-md-12"> 
+                    <input type="button" class="btn btn-danger" name="cancelar" id="cancelar" value="CANCELAR" onclick="window.history.back();"/>
+                    <input type="submit" class="btn btn-success" name="registrar" id="registrar" value="REGISTRAR VENTA" onclick="terminar_venta()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_cantidad_producto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title col-11" id="exampleModalLabel">Datos del Producto</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Código:</strong>  <input class="form-control" id="codigoprod_" disabled/></p>
+            <p><strong>Categoría:</strong>  <input class="form-control"  id="categoriaprod_" disabled/></p>
+            <p><strong>Nombre:</strong>  <input class="form-control" id="nombreprod_" disabled/></p>
+            <p><strong>Descripción:</strong>  <textarea class="form-control" id="descripcionprod_" disabled ></textarea></p>
+            <p><strong>Precio:</strong>  <input class="form-control" type="number" style="direction: rtl;" id="precioprod_" disabled/></p>
+            <br>
+            <p><strong>Seleccione Cantidad del Producto:</strong><input type="number" class="form-control" style="direction: rtl;" id="cantidad_prod_selected" value="1" min="1"/></p>
+            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="btn_addprod" class="btn btn-success ok" >Agregar Prodcuto a la Orden</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<form name="form_insertar" id="form_insertar"method="post" action="{% url 'ventas_registrar_save' %}">{% csrf_token %}
+    <input type="hidden" id="total_to_send" name="total_to_send" />
+    <input type="hidden" id="productos_to_send" name="productos_to_send" />
+    <input type="hidden" id="cliente_nombre_tosend" name="cliente_nombre_tosend"/>
+</form> 
+
+
+<div class="modal fade" id="modal_eliminar_producto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <Eliminando class="modal-title col-11" id="exampleModalLabel">Quitando Producto de la Venta </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <strong>¿Está seguro de quitar este producto?</strong>
+            
+            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="btn_removeprod" class="btn btn-success ok" >Eliminar</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+
+<script>
+    var total = 0;
+    var contador_productos = 0;
+    data_datatable = []
+    ventaArray = []
+    var table2 = $("#tabla_ventas_producto2").DataTable({
+        language: {
+            url: 'http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
+        },
+        responsive: true,
+        "info":false,
+        "lengthChange": false,
+        "searching":false,
+        "paging": false,
+        "scrollY": "250px",
+        "scrollCollapse":true,
+        "scrollX":false,
+        'data': data_datatable,
+        
+        
+    });
+    function delete1(){
+        $("#form_delete").submit();
+    }
+
+    function delete_obj(data){
+        $("#nombre_").html(data[1]);
+        $("#id_delete").val(data[0]);
+        $("#modal_delete").modal('toggle');
+        $("#modal_delete").modal('show');
+    }
+    function realizarventa(data){
+        
+        $("#modal_realizar_venta").modal('toggle');
+        $("#modal_realizar_venta").modal('show');
+    }
+    function seleccionar_producto(){
+        document.getElementById("btn_addprod").disabled = false;
+        $.ajax({
+            type : "GET",
+            url : "{% url 'getProductoInfo' %}",
+            data: {
+                "idprod": $("#producto option:selected").val(),
+            },
+            success: function(data){
+            
+                $("#codigoprod_").val(data.info[0].codigo)
+                $("#categoriaprod_").val(data.info[0].categoria)
+                $("#nombreprod_").val(data.info[0].nombre)
+                $("#descripcionprod_").val(data.info[0].descripcion)
+                $("#precioprod_").val(data.info[0].precio)
+            },
+            failure: function(data){}
+        });
+        $("#modal_cantidad_producto").modal('toggle');
+        $("#modal_cantidad_producto").modal('show');
+        $('#producto').val('0')
+        //$('#producto').trigger('change');
+    }
+    
+    $(document).ready(function() {
+        $('#producto').select2({
+            placeholder: "Busque el producto deseado por Código o Nombre",
+            allowClear: true
+        });
+    });
+    $("#producto").on("change",function(){
+        seleccionar_producto();
+    })
+    $(document).ready(function(){
+        $("#btn_addprod").on('click',function(e){
+            
+            document.getElementById("btn_addprod").disabled=true;
+            contador_productos =  contador_productos + 1;
+            ventaArray.push([$("#codigoprod_").val(),$("#cantidad_prod_selected").val(),$("#precioprod_").val()*$("#cantidad_prod_selected").val(),contador_productos])
+            data_datatable.push(
+                $("#codigoprod_").val(),
+                $("#categoriaprod_").val(),
+                $("#nombreprod_").val(),
+                $("#descripcionprod_").val(),
+                $("#precioprod_").val(),
+                $("#cantidad_prod_selected").val(),
+                $("#precioprod_").val()*$("#cantidad_prod_selected").val()
+            )
+            table2.row.add([
+                $("#codigoprod_").val(),
+                $("#categoriaprod_").val()+" - "+$("#nombreprod_").val(),
+                $("#descripcionprod_").val(),
+                "<strong>$"+$("#precioprod_").val()+"</strong>",
+                $("#cantidad_prod_selected").val(),
+                "<strong>$"+$("#precioprod_").val()*$("#cantidad_prod_selected").val()+"</strong>",
+                '<a class="btn btn-danger" style="color:white" onclick="eliminar_producto('+contador_productos+')"><i class="fa fa-trash"></i></a>'
+            ])
+            table2.draw();
+            $("#modal_cantidad_producto").modal('hide');
+            total = parseFloat($("#total").text())+ parseFloat( $("#precioprod_").val()*$("#cantidad_prod_selected").val());
+            $("#total").text(total);
+            $("#total_to_send").val(total);
+            $("#productos_to_send").val([ventaArray])
+            $("#cantidad_prod_selected").val("1")
+            $('#producto').val('0')
+            $('#producto').trigger('change');
+            
+        });
+        //e.preventDefault();
+    });
+    
+    
+
+    function terminar_venta(){
+        $("#cliente_nombre_tosend").val($("#cliente_nombre").val())
+        if(ventaArray.length==0){
+            document.getElementById('alertaprods').innerHTML='<p class="alert alert-dismissable alert-danger">'+
+                                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+                                'No se ha agregado ningún producto a la venta'+
+                                '</p>'
+            console.log("No ha agregado productos a la venta")
+        }else{
+            $("#form_insertar").submit();
+        }
+    }
+
+    function deshabilitar_botones(tiene_permiso){
+        $('.btn').hide();
+    }
+
+    function eliminar_producto(id){
+        //console.log(ventaArray)
+        $("#modal_eliminar_producto").modal('toggle');
+        $("#modal_eliminar_producto").modal('show');
+        $("#btn_removeprod").on('click',function(){
+            for (var i = 0; i <ventaArray.length;i++){
+                if(ventaArray[i][3] == id){
+                    
+                    table2.rows(i).remove().draw();
+                    total = total - ventaArray[i][2]
+                    ventaArray.splice(i,1);
+                    $("#total").text(total);
+                    $("#total_to_send").val(total);
+                    $("#productos_to_send").val([ventaArray])
+                }
+            }
+            $("#modal_eliminar_producto").modal('toggle');
+            $("#modal_eliminar_producto").modal('hide');
+        })
+        
+
+    }
+
+</script>
+{% endblock extrajs %}
+
+
+

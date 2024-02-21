@@ -1,0 +1,151 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Ventas
+{% endblock %}
+
+
+{% block extracss %}
+<!-- Start datatable css -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.jqueryui.min.css">
+{% endblock %}
+
+
+{% block contenido %}
+
+{% if messages %}
+    <div class="col-lg-12">
+        {% for message in messages %}
+            {% if message.two%}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message.message }}
+                </p>
+            {% else %}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                </p>
+            {%endif%}
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Dark table start -->
+<div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-body">
+            <a type="button" class="btn btn-info float-left" href="{% url 'ventas_insertar' %}" >Realizar Venta</a><br><br><br>
+            <div class="data-tables datatable-dark">
+                <table id="dataTable3" class="text-center cell-border">
+                    <thead class="text-capitalize ">
+                        <tr style="background-color: #d3d3d3;">
+                            <th>Id</th>
+                            <th>Fecha</th>
+                            <th>Esatus</th>
+                            <th>Total</th>
+                            <th>Detalle de Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+
+<script>
+
+    function delete1(){
+        $("#form_delete").submit();
+    }
+
+    function delete_obj(data){
+        $("#nombre_").html(data[1]);
+        $("#id_delete").val(data[0]);
+        $("#modal_delete").modal('toggle');
+        $("#modal_delete").modal('show');
+    }
+    function realizarventa(data){
+        
+        $("#modal_realizar_venta").modal('toggle');
+        $("#modal_realizar_venta").modal('show');
+    }
+    function seleccionar_producto(data){
+        $("#codigoprod_").val(data[0]);
+        $("#nombreprod_").val(data[1]);
+        $("#descripcionprod_").val(data[2]);
+        $("#precioprod_").val(data[3]);
+        $("#categoriaprod_").val(data[4]);
+        $("#modal_cantidad_producto").modal('toggle');
+        $("#modal_cantidad_producto").modal('show');
+
+        
+    }
+
+    function agregar_a_venta(){
+        
+        document.getElementById("tabla_ventas_producto2_body").innerHTML += "<tr><td>"+$("#codigoprod_").val()+"</td><td>"+$("#nombreprod_").val()+"</td>"+
+            "<td>"+$("#descripcionprod_").val()+"</td><td>"+$("#categoriaprod_").val()+"</td><td>$"+$("#precioprod_").val()+"</td>"+
+            "<td>"+$("#cantidad_prod_selected").val()+"</td><td>$"+($("#precioprod_").val()*$("#cantidad_prod_selected").val())+"</td>"+
+            "</tr>";
+        $("#modal_cantidad_producto").modal('hide');
+        var total = parseFloat($("#total").val())+ parseFloat( $("#precioprod_").val()*$("#cantidad_prod_selected").val());
+        console.log(total)
+        $("#total").val(total);
+    
+    }
+
+    $(function () {
+
+        var table = $("#dataTable3").DataTable({
+            language: {
+                url: 'http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
+            },
+            responsive: true,
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            "processing": true,
+            "serverSide": true,
+            columnDefs: [
+                { orderable: false, targets: 1 },
+                { orderable: false, targets: 2 },
+                { orderable: true, targets: '_all' },  
+            ],
+            "ajax": 
+            {
+                "type": "GET",
+                "url": "{% url 'DTVentas' %}",
+                
+
+                "data": function (d){
+                    /*d.date = $('#datetime').val().replace(/ /g,''),
+                    d.dateto = $('#datetime2').val().replace(/ /g,'')*/
+                }
+            }
+        });
+
+    });
+
+    function deshabilitar_botones(tiene_permiso){
+        $('.btn').hide();
+    }
+</script>
+{% endblock extrajs %}

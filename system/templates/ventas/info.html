@@ -1,0 +1,273 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Información de la venta No. {{venta.id}}
+{% endblock %}
+
+
+{% block extracss %}
+<!-- Start datatable css -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.jqueryui.min.css">
+{% endblock %}
+
+
+{% block contenido %}
+
+
+<!-- Dark table start -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header" style="background-color: darkcyan;">
+                <br>
+                <div class="col-md-12 info" >
+                    <div class="col-md-12">
+                        <p style="color: white;"><strong>Detalles de la Venta</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" style="background-color: #d3d3d3;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            
+                            <label>Cliente:</label>
+                            <input type="text" class="form-control"  value="{{venta.cliente|default_if_none:''}}" disabled/>
+                            <h4>Orden del Cliente</h4>
+                            <hr>
+                            <table id="tabla_ventas_producto2" class="table-responsive border cell-border" style="width:100%">
+                                <thead class="text-capitalize">
+                                    <tr style="background-color: skyblue;">
+                                        <th>Codigo de Producto</th>
+                                        <th>Producto</th>
+                                        <th>Descripcion</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Subtotal</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla_ventas_producto2_body">
+                                    {% for prod in detalle %}
+                                        <tr>
+                                            <td>{{prod.producto.id}}</td>
+                                            <td>{{prod.producto.categoria.nombre}} {{prod.producto.nombre}}</td>
+                                            <td>{{prod.producto.descripcion}}</td>
+                                            <td><strong>${{prod.producto.precio}}</strong></td>
+                                            <td>{{prod.cantidad}}</td>
+                                            <td><strong>${{prod.subtotal}}</strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header" style="background-color: darkcyan;">
+                <br>
+                <div class="col-md-12">
+                    <div class="col-md-12">
+                        <p style="color: white;"><strong>Detalles Finales</strong></p>
+                    </div>
+                </div>
+
+            </div>
+           
+            <div class="card-body">
+                <div class="col-md-12">
+                    <h5>Fecha de registro: <label id="total">{{venta.fecha_registro|default_if_none:''}}</label></h5>
+                    <h5>Fecha de cancelación: <label id="total">{{venta.fecha_cancelado|default_if_none:''}}</label></h5>
+                    <h5>Fecha de termino: <label id="total">{{venta.fecha_terminado|default_if_none:''}}</label></h5>
+                    <h5>Total de la Venta: <label>$</label><label id="total">{{venta.total|default_if_none:'0.00'}}</label></h5>
+                    <h5>Pago del Cliente: <label>$</label><label id="total">{{venta.pagado|default_if_none:'0.00'}}</label></h5>
+                    <h5>Cambio del Cliente: <label>$</label><label id="total">{{venta.cambio|default_if_none:'0.00'}}</label></h5>
+                    <!--<input type="text" class="form-control" name="total" id="total" value="0.00" disabled style="direction: rtl; color: black;"/>-->
+                </div>
+                <br>
+            </div>
+            <div class="card-footer">
+                <div class="col-md-12"> 
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_cantidad_producto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title col-11" id="exampleModalLabel">Datos del Producto</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Código:</strong>  <input class="form-control" id="codigoprod_" disabled/></p>
+            <p><strong>Categoría:</strong>  <input class="form-control"  id="categoriaprod_" disabled/></p>
+            <p><strong>Nombre:</strong>  <input class="form-control" id="nombreprod_" disabled/></p>
+            <p><strong>Descripción:</strong>  <textarea class="form-control" id="descripcionprod_" disabled ></textarea></p>
+            <p><strong>Precio:</strong>  <input class="form-control" type="number" style="direction: rtl;" id="precioprod_" disabled/></p>
+            <br>
+            <p><strong>Seleccione Cantidad del Producto:</strong><input type="number" class="form-control" style="direction: rtl;" id="cantidad_prod_selected" value="1" min="1"/></p>
+            
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success ok" onclick="agregar_a_venta()">Agregar Prodcuto a la Orden</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<input type="button" name="" onclick="printTicket()">
+<div style="display: none">
+    <div class="row" id="ticket"> 
+        <div class="col-md-12">
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mr. Champions</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">Av. Norberto Treviño Zapata 3250</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Villareal</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;Ciudad Victoria, Tamaulipas</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC: HEGS970525B39</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;mr.championss@hotmail.com</label>
+            <br>
+            <hr style="color: black">
+            <label style="font-size: 12px;font-family: Arial Narrow " id="fecha_ticket">Fecha: 28/03/2021&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hora: 18:20</label>
+            <br>
+        </div>
+        <hr style="color: black">
+        <div class="col-md-12" id="productosticket" name="productosticket">
+            <table id="tableproductos">
+                <tr>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Descripcion</td>
+                    <td style="font-size: 12px;font-family: Arial Narrow"></td>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Cant</td>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Precio</td>
+                </tr>
+                <tbody id="tbodytickets">
+                    
+                </tbody>                  
+            </table>
+            <hr style="color: black; size: 5px">
+            <table id="tabletotal">
+               
+                               
+                
+            </table>
+            <hr style="color: black; size: 5px">
+            <h6>¡GRACIAS POR SU COMPRA!</h6>
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <p style="color: white">--------------------------------------------</p>
+        </div>
+        
+    </div>    
+    <div class="row" id="cuenta"> 
+        <div class="col-md-12">
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mr. Champions</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">Av. Norberto Treviño Zapata 3250</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Villareal</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;Ciudad Victoria, Tamaulipas</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC: HEGS970525B39</label>
+            <br>
+            <label style="font-size: 12px;font-family: Arial Narrow">&nbsp;&nbsp;&nbsp;&nbsp;mr.championss@hotmail.com</label>
+            <br>
+            <hr style="color: black">
+            <label style="font-size: 12px;font-family: Arial Narrow " id="fecha_ticketcuenta">Fecha: 28/03/2021&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hora: 18:20</label>
+            <br>
+        </div>
+        <hr style="color: black">
+        <div class="col-md-12" id="productosticket" name="productosticket">
+            <table id="tableproductoscuenta">
+                <tr>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Descripcion</td>
+                    <td style="font-size: 12px;font-family: Arial Narrow"></td>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Cant</td>
+                    <td style="font-size: 12px;font-family: Arial Narrow">Precio</td>
+                </tr>
+                <tbody id="tbodyticketscuenta">
+                    
+                </tbody>                  
+            </table>
+            <hr style="color: black; size: 5px">
+            <table id="tabletotalcuenta">
+               
+                               
+                
+            </table>
+            <hr style="color: black; size: 5px">
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <BR>
+            <p style="color: white">--------------------------------------------</p>
+        </div>
+        
+    </div>
+</div>
+
+    
+
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
+
+<script>
+    
+    var table2 = $("#tabla_ventas_producto2").DataTable({
+        language: {
+            url: 'http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json'
+        },
+        responsive: true,
+        "info":false,
+        "lengthChange": false,
+        "searching":false,
+        "paging": false,
+        "scrollY": "250px",
+        "scrollCollapse":true,
+        "scrollX":false,
+        
+        
+        
+    });
+
+    
+</script>
+{% endblock extrajs %}
+
+
+

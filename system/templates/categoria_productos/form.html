@@ -1,0 +1,71 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Registro de Categoría
+{% endblock %}
+
+
+
+
+{% block contenido %}
+
+{% if messages %}
+    <div class="col-lg-12">
+        {% for message in messages %}
+            {% if message.two%}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message.message }}
+                </p>
+            {% else %}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                </p>
+            {%endif%}
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form name="form_insertar" id="form_insertar"method="post" action="{% url 'categoria_productos_insertar_save' %}">{% csrf_token %}
+                        <input type="hidden" name="id" value="">
+                        <input type="hidden" name="firma_1_str" id="firma_1_str" value="">
+                        
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Nombre:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info"><i class="fa fa-user"></i></span>
+                                        <input class="form-control" id="nombre" name="nombre" value="" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+        
+                        </div>
+                        <button type="submit" class="btn btn-success ok float-right">Guardar</button>
+                        <a href="" class="btn btn-danger">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script>
+</script>
+{% endblock %}

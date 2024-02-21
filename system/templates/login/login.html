@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Login</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="{% static 'login/images/icons/favicon.ico' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/bootstrap/css/bootstrap.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/fonts/Linearicons-Free-v1.0.0/icon-font.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/animate/animate.css' %}">
+<!--===============================================================================================-->	
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/css-hamburgers/hamburgers.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/animsition/css/animsition.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/select2/select2.min.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/vendor/daterangepicker/daterangepicker.css' %}">
+<!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'login/css/util.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'login/css/main.css' %}">
+<!--===============================================================================================-->
+</head>
+<body>
+	
+	<div class="container-fluid">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<div class="login100-form-title" style="background-image: url(images/bg-01.jpg); background-color: #245689;">
+					<span class="login100-form-title-1">
+						Mr. Champions Sports Bar.
+					</span>
+				</div>
+
+				<form class="login100-form-title" method="POST" action="/mrchampions/login_user/">{% csrf_token %}
+					<div class="wrap-input50 validate-input m-b-26" data-validate="El usuario es requerido">
+                        <div class="input-group">
+                            <span class="btn btn-info" for="input-1" ><i class="fa fa-user"></i></span>
+                            <input class="form-control" type="text" name="user" placeholder="Ingrese usuario">
+                            <span class="focus-input100"></span>
+                        </div>
+						
+					</div>
+
+					<div class="wrap-input50 validate-input m-b-18" data-validate = "La contraseña es requerida">
+                        <div class="input-group">
+                            <span class="btn btn-info" for="input-1" ><i class="fa fa-lock"></i></span>
+                            <input class="form-control" type="password" name="password" placeholder="Ingrese contraseña">
+                            <span class="focus-input100"></span>
+                        </div>
+					</div>
+
+					<div class="flex-sb-m w-full p-b-30">
+						<!-- <div class="contact100-form-checkbox">
+							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+							<label class="label-checkbox100" for="ckb1">
+								Remember me
+							</label>
+						</div> -->
+<!-- 
+						<div>
+							<a href="#" class="txt1">
+								Forgot Password?
+							</a>
+						</div> -->
+					</div>
+
+
+					<div class="login100-form-title-1" >
+                        <input type="submit" class="btn btn-info"  value="Iniciar Sesión"/>
+						
+					</div>
+				</form>
+			</div>
+        </div>
+        
+        {% if error %}
+    <div class="modal fade" id="exampleModalCenter">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{message}}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+	</div>
+	
+<!--===============================================================================================-->
+    <script src="{% static 'login/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
+<!--===============================================================================================-->
+    <script src="{% static 'login/vendor/animsition/js/animsition.min.js' %}"></script>
+<!--===============================================================================================-->    
+    <script src="{% static 'login/vendor/bootstrap/js/popper.js' %}"></script>
+    <script src="{% static 'login/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<!--===============================================================================================-->
+    <script src="{% static 'login/vendor/select2/select2.min.js' %}"></script>
+<!--===============================================================================================-->
+    <script src="{% static 'login/vendor/daterangepicker/moment.min.js' %}"></script>
+    <script src="{% static 'login/vendor/daterangepicker/daterangepicker.js' %}"></script>
+<!--===============================================================================================-->
+    <script src="{% static 'login/vendor/countdowntime/countdowntime.js' %}"></script>
+<!--===============================================================================================-->
+    <script src="{% static 'login/js/main.js' %}"></script>
+    {% if error %}
+    <script>
+        $(function () {
+            $("#exampleModalCenter").modal("show");
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

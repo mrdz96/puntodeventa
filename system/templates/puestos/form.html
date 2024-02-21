@@ -1,0 +1,134 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Registro de Puesto
+{% endblock %}
+
+
+
+
+{% block contenido %}
+
+{% if messages %}
+    <div class="col-lg-12">
+        {% for message in messages %}
+            {% if message.two%}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message.message }}
+                </p>
+            {% else %}
+                <p class="alert alert-dismissable {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                </p>
+            {%endif%}
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form name="form_insertar" id="form_insertar"method="post" action="{% url 'puestos_insertar_save' %}">{% csrf_token %}
+                        <input type="hidden" name="id" value="">
+                        <input type="hidden" name="firma_1_str" id="firma_1_str" value="">
+                        
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Nombre:</label>
+                                    <div class="input-group">
+                                        <span class="btn btn-info"><i class="fa fa-user"></i></span>
+                                        <input class="form-control" id="name" name="name" value="" required>
+                                    </div>
+                                </div>
+                            </div><br>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label>Permisos:</label>
+
+                                    <div class="input-group">
+                                        <span class="btn btn-primary"><i class="fa fa-user"></i></span>
+                                        <select name="permissions" multiple class="form-control">
+                                           {% for permiso in permissions %}
+                                                <option value="{{permiso.id}}">{{permiso.name}}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <br>
+                            
+                            <!--<div class="row">
+                                <div class="col-md-12">
+                                    <div class="custom-control custom-switch  float-right">
+                                        <input type="checkbox" class="custom-control-input" id="customSwitch2" name="customSwitch2">
+                                        <label class="custom-control-label" for="customSwitch2">Cambiar firma</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="hidden2" name="hidden2" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="file_1">Firma para documentos:</label>
+                                        <br>
+                                        <canvas id="firma_1" name="firma_1" style="border:1px solid #000000;">
+                                    </div>
+                                </div>
+                            </div>-->
+                            
+                            
+                        </div>
+                        <button type="submit" class="btn btn-success ok float-right">Guardar</button>
+                        <a href="" class="btn btn-danger">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script>
+    var canvas1 = ""
+    var signaturePad1 = ""
+    
+    $(function () {
+        canvas1 = document.getElementById("firma_1");
+        signaturePad1 = new SignaturePad(canvas1);
+
+    });
+
+    
+
+    $("#form_insertar").on("submit", function(){
+        //Code: Action (like ajax...)
+        firma_1_string = signaturePad1.toDataURL()
+
+        base64data_nueva1 = firma_1_string.replace("data:image/png;base64,", "")
+        base64data_nueva1 = base64data_nueva1.replace("data:image/jpeg;base64,", "")
+        document.getElementById('firma_1_str').value = base64data_nueva1
+        console.log(base64data_nueva1)
+
+    });
+
+    $('#customSwitch2').on('click',function(){
+        $('#hidden2').slideUp("slow");
+        if(this.checked){
+            $('#hidden2').slideDown("slow");
+        }
+    });
+</script>
+{% endblock %}
